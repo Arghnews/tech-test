@@ -15,7 +15,7 @@ void ParallelPricer::loadPricers() {
     }
 }
 
-void ParallelPricer::price(const std::vector<std::vector<ITrade*>>& tradeContainers, 
+void ParallelPricer::price(const std::vector<std::vector<std::unique_ptr<ITrade>>>& tradeContainers,
                            IScalarResultReceiver* resultReceiver) {
     throw std::runtime_error("Not implemented");
 }

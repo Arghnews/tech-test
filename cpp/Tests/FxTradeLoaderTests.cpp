@@ -17,8 +17,8 @@ void setUpFx() {
     loader.setDataFile("Loaders/TradeData/FxTrades.dat");
     auto trades = loader.loadTrades();
     fxTradeList = new TradeList();
-    for (auto trade : trades) {
-        fxTradeList->add(trade);
+    for (auto&& trade : trades) {
+        fxTradeList->add(std::move(trade));
     }
 }
 
@@ -29,11 +29,11 @@ TEST(TestFxTradeLoadCount) {
 
 TEST(TestFxTradeLoadAccuracyOfFirstTrade) {
     setUpFx();
-    FxTrade* trade = dynamic_cast<FxTrade*>((*fxTradeList)[0]);
+    auto* trade = dynamic_cast<FxTrade*>((*fxTradeList)[0].get());
     ASSERT_TRUE(trade != nullptr);
-    
+
     ASSERT_EQ(trade->getTradeType(), FxTrade::FxSpotTradeType);
-    
+
     std::tm tm = {};
     tm.tm_year = 2012 - 1900;
     tm.tm_mon = 10 - 1;
@@ -42,12 +42,12 @@ TEST(TestFxTradeLoadAccuracyOfFirstTrade) {
     auto actualDate = trade->getTradeDate();
     auto diff = std::chrono::duration_cast<std::chrono::hours>(actualDate - expectedDate).count();
     ASSERT_TRUE(std::abs(diff) < 24);
-    
+
     ASSERT_EQ(trade->getInstrument(), "EURUSD");
     ASSERT_EQ(trade->getCounterparty(), "CSI,AG");
     ASSERT_NEAR(trade->getNotional(), 145000000.0, 0.01);
     ASSERT_NEAR(trade->getRate(), 0.97562, 0.00001);
-    
+
     std::tm valueTm = {};
     valueTm.tm_year = 2012 - 1900;
     valueTm.tm_mon = 10 - 1;
@@ -60,11 +60,11 @@ TEST(TestFxTradeLoadAccuracyOfFirstTrade) {
 
 TEST(TestFxTradeLoadAccuracyOfLastTrade) {
     setUpFx();
-    FxTrade* trade = dynamic_cast<FxTrade*>((*fxTradeList)[3]);
+    auto* trade = dynamic_cast<FxTrade*>((*fxTradeList)[3].get());
     ASSERT_TRUE(trade != nullptr);
-    
+
     ASSERT_EQ(trade->getTradeType(), FxTrade::FxForwardTradeType);
-    
+
     std::tm tm = {};
     tm.tm_year = 2012 - 1900;
     tm.tm_mon = 5 - 1;
@@ -73,12 +73,12 @@ TEST(TestFxTradeLoadAccuracyOfLastTrade) {
     auto actualDate = trade->getTradeDate();
     auto diff = std::chrono::duration_cast<std::chrono::hours>(actualDate - expectedDate).count();
     ASSERT_TRUE(std::abs(diff) < 24);
-    
+
     ASSERT_EQ(trade->getInstrument(), "USDJPY");
     ASSERT_EQ(trade->getCounterparty(), "GS");
     ASSERT_NEAR(trade->getNotional(), 1223445000.0, 0.01);
     ASSERT_NEAR(trade->getRate(), 78.983, 0.001);
-    
+
     std::tm valueTm = {};
     valueTm.tm_year = 2012 - 1900;
     valueTm.tm_mon = 7 - 1;

@@ -6,12 +6,12 @@
 #include <iomanip>
 #include <chrono>
 
-BondTrade* BondTradeLoader::createTradeFromLine(std::string line) {
+static std::unique_ptr<BondTrade> createTradeFromLine(std::string line) {
     std::vector<std::string> items;
     std::stringstream ss(line);
     std::string item;
     
-    while (std::getline(ss, item, separator)) {
+    while (std::getline(ss, item, BondTradeLoader::separator)) {
         items.push_back(item);
     }
     
@@ -19,7 +19,7 @@ BondTrade* BondTradeLoader::createTradeFromLine(std::string line) {
         throw std::runtime_error("Invalid line format");
     }
     
-    BondTrade* trade = new BondTrade(items[6], items[0]);
+    auto trade = std::make_unique<BondTrade>(items[6], items[0]);
     
     std::tm tm = {};
     std::istringstream dateStream(items[1]);
@@ -56,13 +56,13 @@ void BondTradeLoader::loadTradesFromFile(const std::string& filename, BondTradeL
     }
 }
 
-std::vector<ITrade*> BondTradeLoader::loadTrades() {
+std::vector<std::unique_ptr<ITrade>> BondTradeLoader::loadTrades() {
     BondTradeList tradeList;
     loadTradesFromFile(dataFile_, tradeList);
     
-    std::vector<ITrade*> result;
+    std::vector<std::unique_ptr<ITrade>> result;
     for (size_t i = 0; i < tradeList.size(); ++i) {
-        result.push_back(tradeList[i]);
+        result.push_back(std::move(tradeList[i]));
     }
     return result;
 }

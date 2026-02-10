@@ -10,7 +10,7 @@ private:
     std::vector<ITradeLoader*> getTradeLoaders();
     
 public:
-    std::vector<std::vector<ITrade*>> loadTrades();
+    std::vector<std::vector<std::unique_ptr<ITrade>>> loadTrades();
 };
 
 #endif // SERIALTRADELOADER_H

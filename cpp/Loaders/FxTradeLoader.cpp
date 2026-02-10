@@ -32,7 +32,7 @@ split_line(std::string_view input, std::string_view delim)
     return tokens;
 }
 
-static FxTrade* createTradeFromLine(const std::string& line) {
+static std::unique_ptr<FxTrade> createTradeFromLine(const std::string& line) {
     std::vector<std::string> items = split_line(line, "¬");
 
     if (items.size() == 2 && items[0] == "END") {
@@ -42,7 +42,7 @@ static FxTrade* createTradeFromLine(const std::string& line) {
         throw std::runtime_error("Invalid line format");
     }
 
-    FxTrade* trade = new FxTrade(items[8], items[0]);
+    auto trade = std::make_unique<FxTrade>(items[8], items[0]);
 
     // Lambda to parse YYYY-MM-DD into system_clock::time_point
     auto parseDate = [](const std::string& s) {
@@ -88,19 +88,19 @@ static void loadTradesFromFile(const std::string& filename, FxTradeList& tradeLi
             {
                 break;
             }
-            tradeList.add(trade);
+            tradeList.add(std::move(trade));
         }
         lineCount++;
     }
 }
 
-std::vector<ITrade*> FxTradeLoader::loadTrades() {
+std::vector<std::unique_ptr<ITrade>> FxTradeLoader::loadTrades() {
     FxTradeList tradeList;
     loadTradesFromFile(dataFile_, tradeList);
 
-    std::vector<ITrade*> result;
+    std::vector<std::unique_ptr<ITrade>> result;
     for (size_t i = 0; i < tradeList.size(); ++i) {
-        result.push_back(tradeList[i]);
+        result.push_back(std::move(tradeList[i]));
     }
     return result;
 }

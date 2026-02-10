@@ -22,7 +22,7 @@ private:
 public:
     ~ParallelPricer();
     
-    void price(const std::vector<std::vector<ITrade*>>& tradeContainers, 
+    void price(const std::vector<std::vector<std::unique_ptr<ITrade>>>& tradeContainers,
                IScalarResultReceiver* resultReceiver);
 };
 

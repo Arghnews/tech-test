@@ -17,8 +17,8 @@ void setUp() {
     loader.setDataFile("Loaders/TradeData/BondTrades.dat");
     auto trades = loader.loadTrades();
     tradeList = new TradeList();
-    for (auto trade : trades) {
-        tradeList->add(trade);
+    for (auto&& trade : trades) {
+        tradeList->add(std::move(trade));
     }
 }
 
@@ -29,9 +29,8 @@ TEST(TestTradeLoadCount) {
 
 TEST(TestTradeLoadAccuracyOfFirstTrade) {
     setUp();
-    BondTrade* trade = dynamic_cast<BondTrade*>((*tradeList)[0]);
-    ASSERT_TRUE(trade != nullptr);
-    
+    auto& trade = ((*tradeList)[0]);
+
     ASSERT_EQ(trade->getTradeType(), BondTrade::GovBondTradeType);
     
     std::tm tm = {};
@@ -52,23 +51,25 @@ TEST(TestTradeLoadAccuracyOfFirstTrade) {
 
 TEST(TestTradeLoadAccuracyOfLastTrade) {
     setUp();
-    BondTrade* trade = dynamic_cast<BondTrade*>((*tradeList)[8]);
-    ASSERT_TRUE(trade != nullptr);
+    auto& trade = (*tradeList)[8]; // trade is std::unique_ptr<ITrade>&
 
-    ASSERT_EQ(trade->getTradeType(), BondTrade::CorpBondTradeType);
-    
+    auto* bondTrade = dynamic_cast<BondTrade*>(trade.get());
+    ASSERT_TRUE(bondTrade != nullptr);
+
+    ASSERT_EQ(bondTrade->getTradeType(), BondTrade::CorpBondTradeType);
+
     std::tm tm = {};
     tm.tm_year = 2012 - 1900;
     tm.tm_mon = 8 - 1;
     tm.tm_mday = 30;
     auto expectedDate = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-    auto actualDate = trade->getTradeDate();
+    auto actualDate = bondTrade->getTradeDate();
     auto diff = std::chrono::duration_cast<std::chrono::hours>(actualDate - expectedDate).count();
     ASSERT_TRUE(std::abs(diff) < 24);
-    
-    ASSERT_EQ(trade->getInstrument(), "XS0340495216");
-    ASSERT_EQ(trade->getCounterparty(), "BLKROCK");
-    ASSERT_NEAR(trade->getNotional(), 67000000.0, 0.01);
-    ASSERT_NEAR(trade->getRate(), 120.240, 0.001);
-    ASSERT_EQ(trade->getTradeId(), "CORP003");
+
+    ASSERT_EQ(bondTrade->getInstrument(), "XS0340495216");
+    ASSERT_EQ(bondTrade->getCounterparty(), "BLKROCK");
+    ASSERT_NEAR(bondTrade->getNotional(), 67000000.0, 0.01);
+    ASSERT_NEAR(bondTrade->getRate(), 120.240, 0.001);
+    ASSERT_EQ(bondTrade->getTradeId(), "CORP003");
 }

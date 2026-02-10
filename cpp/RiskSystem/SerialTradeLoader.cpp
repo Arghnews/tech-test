@@ -16,9 +16,9 @@ std::vector<ITradeLoader*> SerialTradeLoader::getTradeLoaders() {
     return loaders;
 }
 
-std::vector<std::vector<ITrade*>> SerialTradeLoader::loadTrades() {
+std::vector<std::vector<std::unique_ptr<ITrade>>> SerialTradeLoader::loadTrades() {
     auto loaders = getTradeLoaders();
-    std::vector<std::vector<ITrade*>> result;
+    std::vector<std::vector<std::unique_ptr<ITrade>>> result;
     
     for (auto loader : loaders) {
         result.push_back(loader->loadTrades());
