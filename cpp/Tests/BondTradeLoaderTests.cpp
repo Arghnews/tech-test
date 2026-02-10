@@ -54,7 +54,7 @@ TEST(TestTradeLoadAccuracyOfLastTrade) {
     setUp();
     BondTrade* trade = dynamic_cast<BondTrade*>((*tradeList)[8]);
     ASSERT_TRUE(trade != nullptr);
-    
+
     ASSERT_EQ(trade->getTradeType(), BondTrade::CorpBondTradeType);
     
     std::tm tm = {};
