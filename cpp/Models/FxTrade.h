@@ -2,6 +2,7 @@
 #define FXTRADE_H
 
 #include "BaseTrade.h"
+#include "BaseTrade.h"
 #include <chrono>
 #include <stdexcept>
 
@@ -10,11 +11,12 @@ public:
     static constexpr const char* FxSpotTradeType = "FxSpot";
     static constexpr const char* FxForwardTradeType = "FxFwd";
     
-    FxTrade(const std::string& tradeId = "", const std::string& tradeType = FxSpotTradeType)
+    FxTrade(const std::string& tradeId, const std::string& tradeType)
         : tradeType_(tradeType) {
         if (!tradeId.empty()) {
             tradeId_ = tradeId;
         }
+        rstrip(tradeId_);
     }
     
     std::string getTradeType() const override {

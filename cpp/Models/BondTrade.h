@@ -6,18 +6,6 @@
 #include <stdexcept>
 #include <string>
 
-// Gone for simple function here to strip \r from back of string
-// Don't know if trailing spaces matter on corp bonds or FX, could check tests
-// If knew that, could put this in base class and make sure tradeId is set via setter to always run this
-inline void rstrip(std::string& s)
-{
-    while (!s.empty() &&
-        std::isspace(static_cast<unsigned char>(s.back())))
-    {
-        s.pop_back();
-    }
-}
-
 class BondTrade : public BaseTrade {
 public:
     static constexpr const char* GovBondTradeType = "GovBond";
