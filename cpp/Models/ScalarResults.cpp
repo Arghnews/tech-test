@@ -36,22 +36,44 @@ void ScalarResults::addError(const std::string& tradeId, const std::string& erro
     errors_[tradeId] = error;
 }
 
+ScalarResults::Iterator::Iterator(const ScalarResults* results)
+    : results_(results), resultsIter_(results->results_.begin()), errorsIter_(results->errors_.begin())
+{
+}
+
 ScalarResults::Iterator& ScalarResults::Iterator::operator++() {
-    throw std::runtime_error("Iterator not implemented");
+    if (resultsIter_ != results_->results_.end())
+    {
+        ++resultsIter_;
+    }
+    else if (errorsIter_ != results_->errors_.end())
+    {
+        ++errorsIter_;
+    }
+    else
+    {
+        throw std::runtime_error("Iterator out of bounds");
+    }
+    return *this;
 }
 
 ScalarResult ScalarResults::Iterator::operator*() const {
-    throw std::runtime_error("Iterator not implemented");
+    if (resultsIter_ != results_->results_.end())
+        return ScalarResult(resultsIter_->first, resultsIter_->second, std::nullopt);
+    else if (errorsIter_ != results_->errors_.end())
+        return ScalarResult(errorsIter_->first, std::nullopt, errorsIter_->second);
+    else
+        throw std::runtime_error("Iterator out of bounds");
 }
 
-bool ScalarResults::Iterator::operator!=(const Iterator& other) const {
-    throw std::runtime_error("Iterator not implemented");
+bool ScalarResults::Iterator::operator==(const Iterator& other) const {
+    return resultsIter_ == other.resultsIter_ && errorsIter_ == other.errorsIter_;
 }
 
 ScalarResults::Iterator ScalarResults::begin() const {
-    throw std::runtime_error("Not implemented");
+    return ScalarResults::Iterator{this};
 }
 
 ScalarResults::Iterator ScalarResults::end() const {
-    throw std::runtime_error("Not implemented");
+    return ScalarResults::Iterator{this};
 }
