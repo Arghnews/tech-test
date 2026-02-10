@@ -13,7 +13,7 @@
 // Need a multi char split, since the file is in utf8 and the delim ¬ is 2 bytes
 // getline won't do it
 // From chatgpt
-inline std::vector<std::string>
+static std::vector<std::string>
 split_line(std::string_view input, std::string_view delim)
 {
     std::vector<std::string> tokens;
