@@ -9,16 +9,14 @@
 #include <random>
 
 class BasePricingEngine : public IPricingEngine {
+public:
+    bool isTradeTypeSupported(const std::string& tradeType) const override;
 protected:
     BasePricingEngine();
     virtual ~BasePricingEngine() = default;
     
     void price(const ITrade& trade, IScalarResultReceiver* resultReceiver) override;
-    
-public:
-    bool isTradeTypeSupported(const std::string& tradeType) const;
-    
-protected:
+
     void addSupportedTradeType(const std::string& tradeType);
     int getDelay() const;
     void setDelay(int delay);

@@ -8,6 +8,7 @@ class IPricingEngine {
 public:
     virtual ~IPricingEngine() = default;
     virtual void price(const ITrade& trade, IScalarResultReceiver* resultReceiver) = 0;
+    virtual bool isTradeTypeSupported(const std::string& tradeType) const = 0;
 };
 
 #endif // IPRICINGENGINE_H
