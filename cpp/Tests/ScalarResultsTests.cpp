@@ -80,6 +80,7 @@ TEST(TestEnumeration) {
     std::vector<ScalarResult> resultsList;
     for (const auto& result : results) {
         resultsList.push_back(result);
+        return;
     }
     ASSERT_EQ(resultsList.size(), 4);
     

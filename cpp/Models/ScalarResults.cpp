@@ -36,34 +36,60 @@ void ScalarResults::addError(const std::string& tradeId, const std::string& erro
     errors_[tradeId] = error;
 }
 
-ScalarResults::Iterator::Iterator(const ScalarResults* results)
-    : results_(results), resultsIter_(results->results_.begin()), errorsIter_(results->errors_.begin())
+ScalarResults::Iterator::Iterator(const ScalarResults* results, ResultsIter resultsIter, ErrorsIter errorsIter)
+    : results_(results), resultsIter_(std::move(resultsIter)), errorsIter_(std::move(errorsIter))
 {
 }
 
 ScalarResults::Iterator& ScalarResults::Iterator::operator++() {
-    if (resultsIter_ != results_->results_.end())
-    {
-        ++resultsIter_;
+    if (resultsIter_ == results_->results_.end() && errorsIter_ == results_->errors_.end()) {
+        throw std::runtime_error("Iterator out of bounds");
     }
-    else if (errorsIter_ != results_->errors_.end())
+
+    if (resultsIter_ == results_->results_.end())
     {
         ++errorsIter_;
     }
+    else if (errorsIter_ == results_->errors_.end())
+    {
+        ++resultsIter_;
+    }
+
+    // We need to whichever iterator is lagging behind. Except in the case where both point at the same key
+    if (resultsIter_->first == errorsIter_->first) {
+        ++resultsIter_;
+        ++errorsIter_;
+    }
+    else if (resultsIter_->first < errorsIter_->first)
+    {
+        ++resultsIter_;
+    }
     else
     {
-        throw std::runtime_error("Iterator out of bounds");
+        ++errorsIter_;
     }
+
     return *this;
 }
 
 ScalarResult ScalarResults::Iterator::operator*() const {
-    if (resultsIter_ != results_->results_.end())
-        return ScalarResult(resultsIter_->first, resultsIter_->second, std::nullopt);
-    else if (errorsIter_ != results_->errors_.end())
-        return ScalarResult(errorsIter_->first, std::nullopt, errorsIter_->second);
-    else
+    if (resultsIter_ == results_->results_.end() && errorsIter_ == results_->errors_.end()) {
         throw std::runtime_error("Iterator out of bounds");
+    }
+
+    if (resultsIter_ != results_->results_.end())
+        return {resultsIter_->first, resultsIter_->second, std::nullopt};
+    if (errorsIter_ != results_->errors_.end())
+        return {errorsIter_->first, std::nullopt, errorsIter_->second};
+
+    if (resultsIter_->first < errorsIter_->first) {
+        return {resultsIter_->first, resultsIter_->second, std::nullopt};
+    }
+    if (errorsIter_->first < resultsIter_->first) {
+        return {errorsIter_->first, std::nullopt, errorsIter_->second};
+    }
+
+    return {errorsIter_->first, resultsIter_->second, errorsIter_->second};
 }
 
 bool ScalarResults::Iterator::operator==(const Iterator& other) const {
@@ -71,9 +97,11 @@ bool ScalarResults::Iterator::operator==(const Iterator& other) const {
 }
 
 ScalarResults::Iterator ScalarResults::begin() const {
-    return ScalarResults::Iterator{this};
+    auto i1 = results_.begin()->first;
+    auto i2 = errors_.begin()->first;
+    return ScalarResults::Iterator{this, results_.begin(), errors_.begin()};
 }
 
 ScalarResults::Iterator ScalarResults::end() const {
-    return ScalarResults::Iterator{this};
+    return ScalarResults::Iterator{this, results_.end(), errors_.end()};
 }

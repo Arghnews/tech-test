@@ -39,15 +39,15 @@ public:
         using reference = value_type&;
 
         Iterator() = default;
-        explicit Iterator(const ScalarResults* results);
+        using ResultsIter = std::map<std::string, double>::const_iterator;
+        using ErrorsIter = std::map<std::string, std::string>::const_iterator;
+        Iterator(const ScalarResults* results, ResultsIter resultsIter, ErrorsIter errorsIter);
 
         // Iterator must be constructable from ScalarResults parent
         Iterator& operator++();
         ScalarResult operator*() const;
         bool operator==(const Iterator& other) const;
     private:
-        using ResultsIter = std::map<std::string, double>::const_iterator;
-        using ErrorsIter = std::map<std::string, std::string>::const_iterator;
 
         const ScalarResults* results_ = nullptr;
         ResultsIter resultsIter_{};
